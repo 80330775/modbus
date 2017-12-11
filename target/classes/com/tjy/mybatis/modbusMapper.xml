@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace必须指定dao接口 -->
+<!-- id与dao接口中的方法名一致 -->
+<mapper namespace="com.tjy.dao.IModbusDao">
+	<!-- <insert id="insertUser" parameterType="User" useGeneratedKeys="true" 
+		keyProperty="id"> insert user(username,password,ip,port,encapsulated) values(#{username},#{password},#{ip},#{port},#{encapsulated}) 
+		</insert> <select id="selectUser" resultType="User"> select * from user where 
+		username=#{username} and password=#{password} </select> -->
+
+	<select id="selectAllServers" resultType="Server">
+		select * from server
+	</select>
+
+	<select id="selectDeviceByServerId" resultType="Device">
+		select * from
+		device where serverId = #{serverId}
+	</select>
+
+	<select id="selectDeviceByFloor" resultType="Device">
+		select * from device
+		where floor = #{floor}
+	</select>
+
+	<select id="selectAllFloor" resultType="Integer">
+		select distinct floor
+		from device
+	</select>
+
+	<resultMap id="areaResult" type="Area">
+		<id property="id" column="area_id" />
+		<result property="name" column="name" />
+		<collection property="servers" resultMap="serverResult" />
+	</resultMap>
+
+	<resultMap id="serverResult" type="Server">
+		<id property="id" column="server_id" />
+		<result property="ip" column="ip" />
+		<result property="port" column="port" />
+		<result property="encapsulated" column="encapsulated" />
+		<collection property="devices" resultMap="deviceResult" />
+	</resultMap>
+
+	<resultMap id="deviceResult" type="Device">
+		<id property="id" column="device_id" />
+		<result property="slaveId" column="slaveId" />
+		<result property="type" column="type" />
+		<result property="room" column="room" />
+	</resultMap>
+
+	<select id="selectAllRecord" resultMap="areaResult">
+		select 
+		a.id as area_id,
+		s.id as server_id,
+		d.id as device_id,
+		s.area_id as server_area_id,
+		d.server_id as device_server_id,
+		name,ip,port,encapsulated,slaveId,type,room
+		from area a
+		inner join server s on a.id = s.area_id
+		inner join device d on s.id = d.server_id
+	</select>
+</mapper>
